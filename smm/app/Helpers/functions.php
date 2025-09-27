@@ -112,3 +112,32 @@ if (!function_exists('getPageContent')):
         return App\Page::where(['slug' => $slug])->first()->content;
     }
 endif;
+
+if (!function_exists('parseQueryString')):
+    function parseQueryString($queryString)
+    {
+        $output = [];
+        if (empty($queryString)) {
+            return $output;
+        }
+
+        $pairs = explode('&', $queryString);
+
+        foreach ($pairs as $pair) {
+            $parts = explode('=', $pair, 2);
+            $key = urldecode($parts[0]);
+            $value = isset($parts[1]) ? urldecode($parts[1]) : '';
+
+            if (substr($key, -2) === '[]') {
+                $key = substr($key, 0, -2);
+                if (!isset($output[$key])) {
+                    $output[$key] = [];
+                }
+                $output[$key][] = $value;
+            } else {
+                $output[$key] = $value;
+            }
+        }
+        return $output;
+    }
+endif;
